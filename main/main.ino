@@ -1,11 +1,6 @@
 #include <connectMqttBroker.h>
 
-connectMqttBroker myMQTT( // ssid, password, broker address, broker port
-  "NuttZuRaspiWifi", 
-  "NuttZuWifi1", 
-  "nuttpi", 
-  1883
-);
+connectMqttBroker myMQTT("NuttZuRaspiWifi", "NuttZuWifi1", "10.42.0.1", 1883);
 
 void setup() {
   Serial.begin(115200);
@@ -14,4 +9,10 @@ void setup() {
 
 void loop() {
   myMQTT.loop();
+
+  static unsigned long last = 0;
+  if (millis() - last > 5000) {
+    last = millis();
+    myMQTT.publishMessage("main", "Hello from ESP64!");
+  }
 }

@@ -1,20 +1,14 @@
 #include "connectMqttBroker.h"
 
 connectMqttBroker::connectMqttBroker(
-    String ssid,
-    String password,
+    char* ssid,
+    char* password,
     const char* mqtt_server,
-    int mqtt_port,
-    const char* mqtt_Client_ID,
-    const char* mqtt_Client_username,
-    const char* mqtt_Client_password
+    int mqtt_port
 ) : _ssid(ssid),
     _password(password),
     _mqtt_server(mqtt_server),
     _mqtt_port(mqtt_port),
-    _mqtt_Client_ID(mqtt_Client_ID),
-    _mqtt_Client_username(mqtt_Client_username),
-    _mqtt_Client_password(mqtt_Client_password),
     _client(_espClient)
 {}
 
@@ -62,6 +56,11 @@ void connectMqttBroker::connectWiFi() {
     while (WiFi.status() != WL_CONNECTED) {
         delay(100);
         Serial.print(".");
+        count++;
+        if (count > 120){
+            WiFi.disconnect();
+            break;
+        }
     }
     Serial.println();
     if (WiFi.status() == WL_CONNECTED) {
@@ -74,9 +73,19 @@ void connectMqttBroker::connectWiFi() {
 }
 
 void connectMqttBroker::connectToMQTT() {
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("WiFi disconnected, reconnecting...");
+        connectWiFi();
+    }
+
+    int count = 0;
     while (!_client.connected()) {
-        Serial.print("Attempting MQTT connection...");
-        if (_client.connect(_mqtt_Client_ID, _mqtt_Client_username, _mqtt_Client_password)) {
+        count++;
+        if (count > 3) {
+            break;
+        }
+        Serial.print("Attempting " + String(count) + " MQTT connection...");
+        if (_client.connect("esp32")) {
             Serial.println("connected");
 
             // Subscribe default topics if needed
@@ -85,8 +94,8 @@ void connectMqttBroker::connectToMQTT() {
         } else {
             Serial.print("failed, rc=");
             Serial.print(_client.state());
-            Serial.println(" try again in 1 second");
-            delay(1000);
+            Serial.println(" try again in 0.5 second");
+            delay(500);
         }
     }
 }

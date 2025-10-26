@@ -10,13 +10,10 @@ class connectMqttBroker {
   public:
     // Constructor
     connectMqttBroker(
-      String ssid,
-      String password, 
+      char* ssid,
+      char* password, 
       const char* mqtt_server,
-      int mqtt_port,
-      const char* mqtt_Client_ID = nullptr,
-      const char* mqtt_Client_username = nullptr,
-      const char* mqtt_Client_password = nullptr
+      int mqtt_port
     );
 
     void begin();                 // Setup WiFi and MQTT
