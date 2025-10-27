@@ -11,13 +11,14 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const mqttClient = new MqttClient('mqtt://nuttpi:1883');
-const LedStateManager = require("./modules/dataManagement");
+const {LedStateManager, TempManager} = require("./modules/dataManagement");
 
 const PORT = process.env.PORT || 80;
 
 // Basic middleware
 app.use(express.json());
 const ledManager = new LedStateManager("./STORED/ledState.json");
+const tempManager = new TempManager("./STORED/tempData.json");
 
 // Serve the "views" folder as public static assets
 app.use(express.static(path.join(__dirname, 'views')));
@@ -45,7 +46,11 @@ io.on("connection", (socket) => {
     socket.emit("led2State", ledManager.getLedState("led2State"));
     socket.emit("led3State", ledManager.getLedState("led3State"));
     socket.emit("led4State", ledManager.getLedState("led4State"));
-
+    
+    socket.emit("mqttTemp", tempManager.getField("temp"));
+    socket.emit("mqttHumid", tempManager.getField("humid"));
+    
+    
     socket.on('toggleLed', (data) => {
         console.log("📩 Data from client:", data);
         let ledState = ledManager.getLedState(data.led);
@@ -64,11 +69,13 @@ io.on("connection", (socket) => {
         }
         if (topic == 'main/temp') {
             console.log(`[${topic}] : ${data}`);
-            socket.emit("mqttTemp", data);
-        }
-        if (topic == 'main/humid') {
-            console.log(`[${topic}] : ${data}`);
-            socket.emit("mqttHumid", data);
+            const parseData = JSON.parse(data);
+            console.log(('temp' + parseData.temp))
+            console.log(('humid' + parseData.humid))
+            tempManager.setField('temp', parseData.temp);
+            tempManager.setField('humid', parseData.humid);
+            socket.emit("mqttTemp", tempManager.getField("temp"));
+            socket.emit("mqttHumid", tempManager.getField("humid"));
         }
         if (topic == 'main/light') {
             console.log(`[${topic}] : ${data}`);
@@ -131,7 +138,6 @@ mqttClient.on('connected', () => {
     console.log('Subscribing to topics...');
     mqttClient.subscribe('main');
     mqttClient.subscribe('main/temp');
-    mqttClient.subscribe('main/humid');
     mqttClient.subscribe('main/light');
     mqttClient.subscribe('main/vr');
     mqttClient.subscribe('main/led1State');

@@ -61,4 +61,63 @@ class LedStateManager {
   }
 }
 
-module.exports = LedStateManager;
+class TempManager {
+  constructor(filePath = "./tempData.json") {
+    this.filePath = filePath;
+    this.defaultData = {
+      temp: 0,
+      humid: 0
+    };
+    this.data = this.loadOrCreateFile();
+  }
+
+  // Load existing file or create new one
+  loadOrCreateFile() {
+    if (!fs.existsSync(this.filePath)) {
+      fs.writeFileSync(this.filePath, JSON.stringify(this.defaultData, null, 2));
+      console.log("✅ Created default tempData.json file");
+      return { ...this.defaultData };
+    } else {
+      const data = JSON.parse(fs.readFileSync(this.filePath, "utf8"));
+      console.log("✅ Loaded existing tempData.json file");
+      return data;
+    }
+  }
+
+  // Save current data to file
+  saveData() {
+    fs.writeFileSync(this.filePath, JSON.stringify(this.data, null, 2));
+  }
+
+  // Get all data
+  getData() {
+    return this.data;
+  }
+
+  // Get a single field (temp or humid)
+  getField(fieldName) {
+    if (!(fieldName in this.data)) {
+      throw new Error(`❌ Field "${fieldName}" not found`);
+    }
+    return this.data[fieldName];
+  }
+
+  // Set a single field
+  setField(fieldName, newValue) {
+    if (!(fieldName in this.data)) {
+      throw new Error(`❌ Field "${fieldName}" not found`);
+    }
+    this.data[fieldName] = newValue;
+    this.saveData();
+    return { [fieldName]: newValue };
+  }
+
+  // Update multiple fields at once
+  updateData(newData) {
+    this.data = { ...this.data, ...newData };
+    this.saveData();
+    return this.data;
+  }
+}
+
+module.exports = { LedStateManager, TempManager };

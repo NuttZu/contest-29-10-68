@@ -34,11 +34,11 @@
 <script>
     const socket = io(); // ✅ Works now
     socket.on("mqttTemp", (data) => {
-        document.getElementById("mqttTemp").textContent = (`Tempereture : ${data}`);
+        document.getElementById("mqttTemp").textContent = (`Tempereture : ${data} °C / ${((data * 1.8) + 32).toFixed(2)} °F`);
     });
 
     socket.on("mqttHumid", (data) => {
-        document.getElementById("mqttHumid").textContent = (`Humidity : ${data}`);
+        document.getElementById("mqttHumid").textContent = (`Humidity : ${data}%`);
     });
 
     socket.on("mqttLight", (data) => {
