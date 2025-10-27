@@ -90,34 +90,6 @@ body {
 
 
 
-#light-box {
-    margin: 0;
-    padding: 1vw;
-    border: .2vw solid rgb(203, 193, 46);
-    border-radius: 1vw;
-    display: flex;
-    flex-direction: column;
-}
-
-#light-box h {
-    font-size: 4vw;
-    font-weight: bold;
-    padding-bottom: 1vw;
-    border-bottom : .2vw solid rgb(203, 193, 46);
-
-}
-
-#light-box p {
-    font-size: 3vw;
-    border-bottom : .2vw solid rgb(203, 193, 46);
-    margin: 1vw;
-    padding-bottom: 1vw;
-    margin-left: 0;
-    margin-right: 0;
-}
-
-
-
 #vr-box {
     margin: 0;
     padding: 1vw;
@@ -127,19 +99,82 @@ body {
     flex-direction: column;
 }
 
-#vr-box h {
+#vr-box h3 {
+    margin-top: 0;
+    margin-bottom : 0;
     font-size: 4vw;
     font-weight: bold;
     padding-bottom: 1vw;
-    border-bottom : .2vw solid rgb(60, 202, 215);
-
+    border-bottom: 0.2vw solid rgb(60, 202, 215);
 }
 
 #vr-box p {
     font-size: 3vw;
-    border-bottom : .2vw solid rgb(60, 202, 215);
     margin: 1vw;
     padding-bottom: 1vw;
     margin-left: 0;
     margin-right: 0;
+}
+
+.sensor-bar {
+    width: 60%;           /* full width of container */
+    height: 2vw;           /* height of the bar */
+    background-color: #444444; /* filled part color */
+; /* background for empty bar */
+    border-radius: 0.5vw;
+    border: .3vw black solid;
+    overflow: hidden;
+    margin-top: 0.5vw;
+}
+
+
+#vr-fill {
+    width: 0%;              /* will be updated by JS */
+    height: 100%;
+    background-color: #6c63ff; /* filled part color */
+    border-radius:  0 0 ; /* rounded start only */
+    transition: width 0.2s ease;    /* smooth animation */
+}
+
+#light-box {
+    margin: 0;
+    padding: 1vw;
+    border: 0.2vw solid rgb(255, 200, 0);
+    border-radius: 1vw;
+    display: flex;
+    flex-direction: column;
+}
+
+#light-box h3 {
+    margin-top: 0;
+    margin-bottom : 0;
+    font-size: 4vw;
+    font-weight: bold;
+    padding-bottom: 1vw;
+    border-bottom: 0.2vw solid rgb(255, 200, 0);
+}
+
+#light-box p {
+    font-size: 3vw;
+    margin: 1vw 0 0 0;
+    padding-bottom: 1vw;
+}
+
+.light-sensor-bar {
+    width: 80%;           
+    height: 2vw;          
+    background-color: #444444;  /* dark background for empty bar */
+    border-radius: 0.5vw;
+    border: 0.3vw black solid;
+    overflow: hidden;
+    margin-top: 0.5vw;
+}
+
+#light-fill {
+    width: 0%;             
+    height: 100%;
+    /* gradient from dark yellow to bright yellow */
+    background: linear-gradient(to right, #555500, #ffff00);
+    border-radius: 0 0.5vw 0.5vw 0; 
+    transition: width 0.2s ease;
 }

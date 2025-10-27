@@ -120,4 +120,95 @@ class TempManager {
   }
 }
 
-module.exports = { LedStateManager, TempManager };
+class VrStateManager {
+  constructor(filePath = "./vrState.json") {
+    this.filePath = filePath;
+    this.defaultState = { vr: 0 };
+    this.vrState = this.loadOrCreateFile();
+  }
+
+  // Load existing file or create new one
+  loadOrCreateFile() {
+    if (!fs.existsSync(this.filePath)) {
+      fs.writeFileSync(this.filePath, JSON.stringify(this.defaultState, null, 2));
+      console.log("✅ Created default VR state file");
+      return { ...this.defaultState };
+    } else {
+      const data = JSON.parse(fs.readFileSync(this.filePath, "utf8"));
+      console.log("✅ Loaded existing VR state file");
+      return data;
+    }
+  }
+
+  // Save current state
+  saveState() {
+    fs.writeFileSync(this.filePath, JSON.stringify(this.vrState, null, 2));
+  }
+
+  // Get all states
+  getState() {
+    return this.vrState;
+  }
+
+  // Get VR value
+  getVr() {
+    return this.vrState.vr;
+  }
+
+  // Update VR value
+  setVr(newValue) {
+    this.vrState.vr = newValue;
+    this.saveState();
+    return { vr: newValue };
+  }
+}
+
+class LightStateManager {
+  constructor(filePath = "./lightState.json") {
+    this.filePath = filePath;
+    this.defaultState = { light: 0 };
+    this.lightState = this.loadOrCreateFile();
+  }
+
+  // Load existing file or create new one
+  loadOrCreateFile() {
+    if (!fs.existsSync(this.filePath)) {
+      fs.writeFileSync(this.filePath, JSON.stringify(this.defaultState, null, 2));
+      console.log("✅ Created default Light state file");
+      return { ...this.defaultState };
+    } else {
+      const data = JSON.parse(fs.readFileSync(this.filePath, "utf8"));
+      console.log("✅ Loaded existing Light state file");
+      return data;
+    }
+  }
+
+  // Save current state
+  saveState() {
+    fs.writeFileSync(this.filePath, JSON.stringify(this.lightState, null, 2));
+  }
+
+  // Get all states
+  getState() {
+    return this.lightState;
+  }
+
+  // Get light value
+  getLight() {
+    return this.lightState.light;
+  }
+
+  // Update light value
+  setLight(newValue) {
+    this.lightState.light = newValue;
+    this.saveState();
+    return { light: newValue };
+  }
+}
+
+module.exports = { 
+    LedStateManager,  
+    TempManager, 
+    VrStateManager, 
+    LightStateManager 
+};

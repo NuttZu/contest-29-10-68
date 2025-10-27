@@ -11,7 +11,13 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const mqttClient = new MqttClient('mqtt://nuttpi:1883');
-const {LedStateManager, TempManager} = require("./modules/dataManagement");
+const {
+    LedStateManager, 
+    TempManager, 
+    VrStateManager,
+    LightStateManager
+
+} = require("./modules/dataManagement");
 
 const PORT = process.env.PORT || 80;
 
@@ -19,6 +25,8 @@ const PORT = process.env.PORT || 80;
 app.use(express.json());
 const ledManager = new LedStateManager("./STORED/ledState.json");
 const tempManager = new TempManager("./STORED/tempData.json");
+const vrStateManager = new VrStateManager("./STORED/vrData.json");
+const lightStateManager = new LightStateManager("./STORED/lightData.json");
 
 // Serve the "views" folder as public static assets
 app.use(express.static(path.join(__dirname, 'views')));
@@ -49,6 +57,9 @@ io.on("connection", (socket) => {
     
     socket.emit("mqttTemp", tempManager.getField("temp"));
     socket.emit("mqttHumid", tempManager.getField("humid"));
+
+    socket.emit("mqttVr", vrStateManager.getVr());
+    socket.emit("mqttLight", lightStateManager.getLight());
     
     
     socket.on('toggleLed', (data) => {
@@ -70,8 +81,6 @@ io.on("connection", (socket) => {
         if (topic == 'main/temp') {
             console.log(`[${topic}] : ${data}`);
             const parseData = JSON.parse(data);
-            console.log(('temp' + parseData.temp))
-            console.log(('humid' + parseData.humid))
             tempManager.setField('temp', parseData.temp);
             tempManager.setField('humid', parseData.humid);
             socket.emit("mqttTemp", tempManager.getField("temp"));
@@ -79,11 +88,13 @@ io.on("connection", (socket) => {
         }
         if (topic == 'main/light') {
             console.log(`[${topic}] : ${data}`);
-            socket.emit("mqttLight", data);
+            lightStateManager.setLight(data);
+            socket.emit("mqttLight", lightStateManager.getLight());
         }
         if (topic == 'main/vr') {
             console.log(`[${topic}] : ${data}`);
-            socket.emit("mqttVr", data);
+            vrStateManager.setVr(data);
+            socket.emit("mqttVr", vrStateManager.getVr());
         }
 
         if (topic == 'main/led1State') {

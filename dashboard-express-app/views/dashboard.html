@@ -23,8 +23,26 @@
             </div>
             <div class="content">
                 <div id="light-box">
-                    <h>Light Data</h>
-                    <p id="mqttLight">Light : Loading...</p>
+                    <h3>Light Sensor</h3>
+                    <div style="display: flex; flex-direction: row; justify-content: space-around; align-items: center;">
+                        <p id="mqttLight">Light : </p>
+                        <div class="light-sensor-bar">
+                            <div id="light-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sub-container">
+            <div class="content">
+                <div id="vr-box">
+                    <h3>VR Sensor</h3>
+                    <div style="display: flex; flex-direction: row; justify-content: space-around; align-items: center;">
+                        <p id="mqttVr">Sensor Value : </p>
+                        <div class="sensor-bar">
+                            <div id="vr-fill"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -42,11 +60,29 @@
     });
 
     socket.on("mqttLight", (data) => {
-        document.getElementById("mqttLight").textContent = (`Light : ${data}`);
+        const maxValue = 100; // maximum expected light value
+        const fillElement = document.getElementById("light-fill");
+        const displayElement = document.getElementById("mqttLight");
+
+        const value = Number(data);
+
+        // calculate percentage of the bar
+        let percent = (value / maxValue) * 100;
+        if (percent > 100) percent = 100; // clamp to 100%
+
+        fillElement.style.width = percent + "%";
     });
 
     socket.on("mqttVr", (data) => {
-        document.getElementById("mqttVr").textContent = (`Light : ${data}`);
+        const maxValue = 100; // maximum expected sensor value
+        const fillElement = document.getElementById("vr-fill");
+        const value = Number(data);
+
+        // calculate percentage of the bar
+        let percent = (value / maxValue) * 100;
+        if (percent > 100) percent = 100; // clamp to 100%
+
+        fillElement.style.width = percent + "%";
     });
 </script>
 </html>
