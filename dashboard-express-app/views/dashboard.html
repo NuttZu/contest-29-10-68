@@ -13,22 +13,49 @@
         <p>This is a sample dashboard page using a custom font.</p>
     </div>
     <div class="container">
-        <div id="temp-box">
-            <div>
-                <h>Temperature</h>
-                <p id="msg">Loading...</p>
+        <div class="sub-container">
+            <div class="content">
+                <div id="temp-box">
+                    <h>Temperature</h>
+                    <p id="mqttTemp">Tempereture : Loading...</p>
+                    <p id="mqttHumid">Humidity : Loading...</p>
+                </div>
+            </div>
+            <div class="content">
+                <div id="light-box">
+                    <h>Light Data</h>
+                    <p id="mqttLight">Light : Loading...</p>
+                </div>
             </div>
         </div>
-        <div id="box-1">
-
+        <div class="sub-container">
+            <div class="content">
+                <div id="vr-box">
+                    <h>Temperature</h>
+                    <p id="vr">Variable Resistor : Loading...</p>
+                </div>
+            </div>
         </div>
     </div>
 
 </body>
 <script>
     const socket = io(); // ✅ Works now
-    socket.on("message", (data) => {
-    document.getElementById("msg").textContent = data;
+    socket.on("mqttTemp", (data) => {
+        document.getElementById("mqttTemp").textContent = (`Tempereture : ${data}`);
     });
+
+    socket.on("mqttHumid", (data) => {
+        document.getElementById("mqttHumid").textContent = (`Humidity : ${data}`);
+    });
+
+    socket.on("mqttLight", (data) => {
+        document.getElementById("mqttLight").textContent = (`Light : ${data}`);
+    });
+
+    socket.on("mqttVr", (data) => {
+        document.getElementById("mqttVr").textContent = (`Light : ${data}`);
+    });
+
 </script>
 </html>

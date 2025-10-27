@@ -1,3 +1,6 @@
+require('dotenv').config();
+
+const MqttClient = require('./modules/mqttApp');
 const express = require('express');
 const path = require('path');
 const http = require("http");
@@ -7,7 +10,9 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const PORT = process.env.PORT || 3000;
+const mqttClient = new MqttClient('mqtt://nuttpi:1883');
+
+const PORT = process.env.PORT || 80;
 
 // Basic middleware
 app.use(express.json());
@@ -22,8 +27,39 @@ app.get('/', (req, res) => {
 
 // Socket.io connection handler
 io.on("connection", (socket) => {
-  console.log("✅ A user connected");
-  socket.emit("message", "Hello from the server!");
+    console.log("✅ A user connected");
+
+    // get data from mqtt
+    mqttClient.on('data', ({ topic, data }) => {
+        if (topic == 'main') {
+            console.log(`[${topic}] : ${data}`);
+        }
+        if (topic == 'main/temp') {
+            console.log(`[${topic}] : ${data}`);
+            socket.emit("mqttTemp", data);
+        }
+        if (topic == 'main/humid') {
+            console.log(`[${topic}] : ${data}`);
+            socket.emit("mqttHumid", data);
+        }
+        if (topic == 'main/light') {
+            console.log(`[${topic}] : ${data}`);
+            socket.emit("mqttLight", data);
+        }
+        if (topic == 'main/vr') {
+            console.log(`[${topic}] : ${data}`);
+            socket.emit("mqttVr", data);
+        }
+    });
+
+});
+
+// start mqtt client 
+mqttClient.on('connected', () => {
+  mqttClient.subscribe('main');
+  mqttClient.subscribe('main/temp');
+  mqttClient.subscribe('main/humid');
+  mqttClient.subscribe('main/light');
 });
 
 // 404 handler
