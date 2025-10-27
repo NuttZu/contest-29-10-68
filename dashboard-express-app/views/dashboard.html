@@ -9,8 +9,8 @@
 </head>
 <body>
     <div class="nav-bar">
-        <h1>Welcome to the Dashboard</h1>
-        <p>This is a sample dashboard page using a custom font.</p>
+        <button id="nav-dash-btn" onclick="location.href='/Dashboard'">Dashboard</button>
+        <button id="nav-control-btn" onclick="location.href='/Control'">Control</button>
     </div>
     <div class="container">
         <div class="sub-container">
@@ -25,14 +25,6 @@
                 <div id="light-box">
                     <h>Light Data</h>
                     <p id="mqttLight">Light : Loading...</p>
-                </div>
-            </div>
-        </div>
-        <div class="sub-container">
-            <div class="content">
-                <div id="vr-box">
-                    <h>Temperature</h>
-                    <p id="vr">Variable Resistor : Loading...</p>
                 </div>
             </div>
         </div>
@@ -56,6 +48,5 @@
     socket.on("mqttVr", (data) => {
         document.getElementById("mqttVr").textContent = (`Light : ${data}`);
     });
-
 </script>
 </html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="control.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="nav-bar">
+        <button id="nav-dash-btn" onclick="location.href='/Dashboard'">Dashboard</button>
+        <button id="nav-control-btn" onclick="location.href='/Control'">Control</button>
+    </div>
+    <div class="container">
+        <div class="sub-container">
+            <div class="content">
+                <div id="led-box">
+                    <h>LED Status</h>
+                    <div style="display: flex; flex-direction: row; margin-top: 1vw; padding-bottom: 1vw; justify-content: space-around; border-bottom : .2vw solid rgb(199, 199, 199);">
+                        <div class="ledState" id="led1State"></div>
+                        <div class="ledState" id="led2State"></div>
+                        <div class="ledState" id="led3State"></div>
+                        <div class="ledState" id="led4State"></div>
+                    </div>
+                    <div style="display: flex; flex-direction: row; margin-top: 0; justify-content: space-around;">
+                        <p style="font-size: 2vw;">Led 1</p>
+                        <p style="font-size: 2vw;">Led 2</p>
+                        <p style="font-size: 2vw;">Led 3</p>
+                        <p style="font-size: 2vw;">Led 4</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sub-container">
+            <div class="content">
+                <div id="control-box">
+                    <h>Control Panel</h>
+                    <div style="display: flex; flex-direction: row; margin-top: 1vw; padding-bottom: 1vw; justify-content: space-around; border-bottom : .2vw solid rgb(199, 199, 199);">
+                        <button onclick="toggleLed('led1State')"></button>
+                        <button onclick="toggleLed('led2State')"></button>
+                        <button onclick="toggleLed('led3State')"></button>
+                        <button onclick="toggleLed('led4State')"></button>
+                    </div>
+                    <div style="display: flex; flex-direction: row; margin-top: 0; justify-content: space-around;">
+                        <p style="font-size: 2vw;">Led 1</p>
+                        <p style="font-size: 2vw;">Led 2</p>
+                        <p style="font-size: 2vw;">Led 3</p>
+                        <p style="font-size: 2vw;">Led 4</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script>
+    const socket = io(); // ✅ Works now
+    socket.on("led1State", (data) => {
+        if (data) {
+            document.getElementById("led1State").style.backgroundColor = "#5bfa25";
+        }
+        else if (!data) {
+            document.getElementById("led1State").style.backgroundColor = "#474747";
+        }
+    });
+
+    socket.on("led2State", (data) => {
+        if (data) {
+            document.getElementById("led2State").style.backgroundColor = "#5bfa25";
+        }
+        if (!data) {
+            document.getElementById("led2State").style.backgroundColor = "#474747";
+        }
+    });
+
+    socket.on("led3State", (data) => {
+        if (data) {
+            document.getElementById("led3State").style.backgroundColor = "#5bfa25";
+        }
+        if (!data) {
+            document.getElementById("led3State").style.backgroundColor = "#474747";
+        }
+    });
+
+    socket.on("led4State", (data) => {
+        if (data) {
+            document.getElementById("led4State").style.backgroundColor = "#5bfa25";
+        }
+        if (!data) {
+            document.getElementById("led4State").style.backgroundColor = "#474747";
+        }
+    });
+
+    function toggleLed(led) {
+        socket.emit("toggleLed", { led });
+    }
+</script>
+</html>
