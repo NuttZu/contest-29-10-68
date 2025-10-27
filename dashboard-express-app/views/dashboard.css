@@ -1,0 +1,65 @@
+@font-face {
+  font-family: 'FC Daisy';
+  src: url('./assets/fonts/FC-Daisy-Regular-ver-1.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'FC Daisy', sans-serif;
+  background-color: rgb(56, 0, 0);
+  margin: 0;
+  padding: 0;
+}
+
+.nav-bar {
+    background-color: rgb(177, 77, 15);
+    padding: .5vw;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 4vw;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 3vw 2vw 0 2vw;
+    padding: 0;
+}
+
+#temp-box {
+    background-color: rgb(255, 255, 255);
+    height: 15vw;
+    width: 45vw;
+    margin: 1vw;
+    border-radius: 1vw;
+    padding: 3vw;
+}
+
+#temp-box div {
+    margin: 0;
+    padding: 0;
+}
+
+#temp-box h {
+    font-size: 4vw;
+    font-weight: bold;
+    
+}
+
+#temp-box p {
+    font-size: 2vw;
+}
+
+
+
+#box-1 {
+    background-color: rgb(255, 255, 255);
+    height: 15vw;
+    width: 45vw;
+    margin: 1vw;
+    border-radius: 1vw;
+}
