@@ -141,6 +141,27 @@ io.on("connection", (socket) => {
             ledManager.setLedState("led4State", data);
             socket.emit("led4State", ledManager.getLedState("led4State"));
         }
+
+        if (topic == 'main/restart') {
+            console.log(`[${topic}] : ${data}`);
+            if (data == "true") {
+                ledManager.reset();
+                    socket.emit("led1State", ledManager.getLedState("led1State"));
+                    socket.emit("led2State", ledManager.getLedState("led2State"));
+                    socket.emit("led3State", ledManager.getLedState("led3State"));
+                    socket.emit("led4State", ledManager.getLedState("led4State"));
+
+                tempManager.reset();
+                    socket.emit("mqttTemp", tempManager.getField("temp"));
+                    socket.emit("mqttHumid", tempManager.getField("humid"));
+
+                vrStateManager.reset();
+                    socket.emit("mqttVr", vrStateManager.getVr());
+
+                lightStateManager.reset();
+                    socket.emit("mqttLight", lightStateManager.getLight());
+            }
+        }
     });
 });
 
@@ -148,6 +169,7 @@ io.on("connection", (socket) => {
 mqttClient.on('connected', () => {
     console.log('Subscribing to topics...');
     mqttClient.subscribe('main');
+    mqttClient.subscribe('main/restart');
     mqttClient.subscribe('main/temp');
     mqttClient.subscribe('main/light');
     mqttClient.subscribe('main/vr');
@@ -155,6 +177,7 @@ mqttClient.on('connected', () => {
     mqttClient.subscribe('main/led2State');
     mqttClient.subscribe('main/led3State');
     mqttClient.subscribe('main/led4State');
+
 });
 
 

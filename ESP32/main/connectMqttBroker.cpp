@@ -1,5 +1,7 @@
 #include "connectMqttBroker.h"
 
+static connectMqttBroker* currentInstance = nullptr;
+
 connectMqttBroker::connectMqttBroker(
     char* ssid,
     char* password,
@@ -19,6 +21,7 @@ void connectMqttBroker::begin() {
     connectWiFi();
     connectToMQTT();
     _client.setServer(_mqtt_server, _mqtt_port);
+    currentInstance = this;
     _client.setCallback(connectMqttBroker::mqttCallback);
 }
 
@@ -34,17 +37,16 @@ void connectMqttBroker::loop() {
     _client.loop();
 }
 
-void connectMqttBroker::publishMessage(const char* topic, const char* payload) {
-    if (_client.connected()) {
-        _client.publish(topic, payload);
-    }
-}
-
 void connectMqttBroker::subscribeTopic(const char* topic) {
     if (_client.connected()) {
         _client.subscribe(topic);
     }
 }
+
+void connectMqttBroker::setOnMessageCallback(std::function<void(const char* topic, const char* message)> cb) {
+    onMessageCallback = cb;
+}
+
 
 // -------------------------
 // Private Methods
@@ -86,10 +88,15 @@ void connectMqttBroker::connectToMQTT() {
         }
         Serial.print("Attempting " + String(count) + " MQTT connection...");
         if (_client.connect("esp32")) {
-            Serial.println("connected");
+            Serial.println();
+            Serial.println("MQTT connected");
 
             // Subscribe default topics if needed
             _client.subscribe("main");
+            _client.subscribe("main/setLed1");
+            _client.subscribe("main/setLed2");
+            _client.subscribe("main/setLed3");
+            _client.subscribe("main/setLed4");
 
         } else {
             Serial.print("failed, rc=");
@@ -101,12 +108,18 @@ void connectMqttBroker::connectToMQTT() {
 }
 
 void connectMqttBroker::mqttCallback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived on topic: ");
-  Serial.println(topic);
-
-  Serial.print("Message: ");
+  String message;
   for (unsigned int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
+    message += (char)payload[i];
   }
-  Serial.println();
+
+  Serial.print("MQTT msg topic: ");
+  Serial.print(topic);
+  Serial.print(" | message: ");
+  Serial.println(message);
+
+  // 🔹 NEW: forward message to main program callback
+  if (currentInstance && currentInstance->onMessageCallback) {
+    currentInstance->onMessageCallback(topic, message.c_str());
+  }
 }

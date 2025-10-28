@@ -18,8 +18,18 @@ class connectMqttBroker {
 
     void begin();                 // Setup WiFi and MQTT
     void loop();                  // Must call in main loop
-    void publishMessage(const char* topic, const char* payload);
     void subscribeTopic(const char* topic);
+
+    void setOnMessageCallback(std::function<void(const char* topic, const char* message)> cb);
+
+    template <typename T>
+    void publishMessage(const char* topic, const T& payload) {
+        if (_client.connected()) {
+            String strPayload = String(payload);
+            _client.publish(topic, strPayload.c_str());
+        }
+    }
+
 
   private:
     String _ssid;
@@ -36,6 +46,7 @@ class connectMqttBroker {
     void connectToMQTT();
     void connectWiFi();
     static void mqttCallback(char* topic, byte* payload, unsigned int length);
+    std::function<void(const char* topic, const char* message)> onMessageCallback;
 };
 
 #endif
