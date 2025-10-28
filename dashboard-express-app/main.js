@@ -106,6 +106,7 @@ io.on("connection", (socket) => {
                 data = false;
             } else {data = false}
             ledManager.setLedState("led1State", data);
+            mqttClient.publish("main/setLed1", ledManager.getLedState("led1State").toString());
             socket.emit("led1State", ledManager.getLedState("led1State"));
         }
         if (topic == 'main/led2State') {
@@ -117,6 +118,7 @@ io.on("connection", (socket) => {
                 data = false;
             } else {data = false}
             ledManager.setLedState("led2State", data);
+            mqttClient.publish("main/setLed2", ledManager.getLedState("led2State").toString());
             socket.emit("led2State", ledManager.getLedState("led2State"));
         }
         if (topic == 'main/led3State') {
@@ -128,6 +130,7 @@ io.on("connection", (socket) => {
                 data = false;
             } else {data = false}
             ledManager.setLedState("led3State", data);
+            mqttClient.publish("main/setLed3", ledManager.getLedState("led3State").toString());
             socket.emit("led3State", ledManager.getLedState("led3State"));
         }
         if (topic == 'main/led4State') {
@@ -139,27 +142,60 @@ io.on("connection", (socket) => {
                 data = false;
             } else {data = false}
             ledManager.setLedState("led4State", data);
+            mqttClient.publish("main/setLed4", ledManager.getLedState("led4State").toString());
             socket.emit("led4State", ledManager.getLedState("led4State"));
         }
-
-        if (topic == 'main/restart') {
+        if (topic == 'main/ledToggle') {
             console.log(`[${topic}] : ${data}`);
-            if (data == "true") {
-                ledManager.reset();
-                    socket.emit("led1State", ledManager.getLedState("led1State"));
-                    socket.emit("led2State", ledManager.getLedState("led2State"));
-                    socket.emit("led3State", ledManager.getLedState("led3State"));
-                    socket.emit("led4State", ledManager.getLedState("led4State"));
-
-                tempManager.reset();
-                    socket.emit("mqttTemp", tempManager.getField("temp"));
-                    socket.emit("mqttHumid", tempManager.getField("humid"));
-
-                vrStateManager.reset();
-                    socket.emit("mqttVr", vrStateManager.getVr());
-
-                lightStateManager.reset();
-                    socket.emit("mqttLight", lightStateManager.getLight());
+            if (data === "led1State") {
+                let ledState = ledManager.getLedState("led1State");
+                    console.log('ledState : ' + ledState.toString());
+                if (ledState) {
+                    ledState = false;
+                } else if (!ledState) { ledState = true; }
+                ledManager.setLedState("led1State", ledState);
+                mqttClient.publish("main/led1State", ledManager.getLedState("led1State").toString());
+                socket.emit("led1State", ledManager.getLedState("led1State"));
+            }
+            if (data === "led2State") {
+                let ledState = ledManager.getLedState("led2State");
+                    console.log('ledState : ' + ledState.toString());
+                if (ledState) {
+                    ledState = false;
+                } else if (!ledState) { ledState = true; }
+                ledManager.setLedState("led2State", ledState);
+                mqttClient.publish("main/led2State", ledManager.getLedState("led2State").toString());
+                socket.emit("led2State", ledManager.getLedState("led2State"));
+            }
+            if (data === "led3State") {
+                let ledState = ledManager.getLedState("led3State");
+                    console.log('ledState : ' + ledState.toString());
+                if (ledState) {
+                    ledState = false;
+                } else if (!ledState) { ledState = true; }
+                ledManager.setLedState("led3State", ledState);
+                mqttClient.publish("main/led3State", ledManager.getLedState("led3State").toString());
+                socket.emit("led3State", ledManager.getLedState("led3State"));
+            }
+            if (data === "led3State") {
+                let ledState = ledManager.getLedState("led3State");
+                    console.log('ledState : ' + ledState.toString());
+                if (ledState) {
+                    ledState = false;
+                } else if (!ledState) { ledState = true; }
+                ledManager.setLedState("led3State", ledState);
+                mqttClient.publish("main/led3State", ledManager.getLedState("led3State").toString());
+                socket.emit("led3State", ledManager.getLedState("led3State"));
+            }
+            if (data === "led4State") {
+                let ledState = ledManager.getLedState("led4State");
+                    console.log('ledState : ' + ledState.toString());
+                if (ledState) {
+                    ledState = false;
+                } else if (!ledState) { ledState = true; }
+                ledManager.setLedState("led4State", ledState);
+                mqttClient.publish("main/led4State", ledManager.getLedState("led4State").toString());
+                socket.emit("led4State", ledManager.getLedState("led4State"));
             }
         }
     });
@@ -177,7 +213,7 @@ mqttClient.on('connected', () => {
     mqttClient.subscribe('main/led2State');
     mqttClient.subscribe('main/led3State');
     mqttClient.subscribe('main/led4State');
-
+    mqttClient.subscribe('main/ledToggle')
 });
 
 

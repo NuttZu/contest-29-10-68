@@ -41,27 +41,24 @@ void setup() {
 
   // Handle messages from broker
   myMQTT.setOnMessageCallback([](const char* topic, const char* message) {
-    Serial.printf("MQTT [%s] -> %s\n", topic, message);
-
+    Serial.println("MQTT > %s\n", topic, message);
+    int state = (strcmp(message, "true") == 0) ? HIGH : LOW;
+    
     if (strcmp(topic, "main/setLed1") == 0) {
-      int value = atoi(message);
-      digitalWrite(led1Pin, value);
-      Serial.println("  setLed1  to   " + String(value));
+      digitalWrite(led1Pin, state);
+      Serial.println("  setLed1  to   " + String(state));
     }
     if (strcmp(topic, "main/setLed2") == 0) {
-      int value = atoi(message);
-      digitalWrite(led2Pin, value);
-      Serial.println("  setLed2  to   " + String(value));
+      digitalWrite(led2Pin, state);
+      Serial.println("  setLed2  to   " + String(state));
     }
     if (strcmp(topic, "main/setLed3") == 0) {
-      int value = atoi(message);
-      digitalWrite(led3Pin, value);
-      Serial.println("  setLed3  to   " + String(value));
+      digitalWrite(led3Pin, state);
+      Serial.println("  setLed3  to   " + String(state));
     }
     if (strcmp(topic, "main/setLed4") == 0) {
-      int value = atoi(message);
-      digitalWrite(led4Pin, value);
-      Serial.println("  setLed4  to   " + String(value));
+      digitalWrite(led4Pin, state);
+      Serial.println("  setLed4  to   " + String(state));
     }
   });
 
@@ -73,17 +70,14 @@ static unsigned long VrLast = 0;
 static unsigned long lightLast = 0;
 static unsigned long tempLast = 0;
 
+bool pressed[4] = {false, false, false, false};
+
 void loop() {
 
   if (millis() - VrLast > 500) {
     VrLast = millis();
     int vrValue = analogRead(vrPIN);  // 0-4095
     int percent = map(vrValue, 0, 4095, 0, 100); // optional: 0-100%
-    
-    // Serial.print("VR raw: ");
-    // Serial.print(vrValue);
-    // Serial.print("  |  VR %: ");
-    // Serial.println(percent);
 
     myMQTT.publishMessage("main/vr", percent);
   }
@@ -92,11 +86,6 @@ void loop() {
     lightLast = millis();
     int ldrRaw = analogRead(ldrPin);
     int ldrPercent = map(ldrRaw, 0, 4095, 100, 0);
-    
-    // Serial.print("light raw: ");
-    // Serial.print(ldrRaw);
-    // Serial.print("  |  light %: ");
-    // Serial.println(ldrPercent);
 
     myMQTT.publishMessage("main/light", ldrPercent);
   }
@@ -114,83 +103,36 @@ void loop() {
     myMQTT.publishMessage("main/temp", buffer);
   }
 
+  int pins[4] = {switch1Pin, switch2Pin, switch3Pin, switch4Pin};
 
-  int sw1 = !digitalRead(switch1Pin);
-  int sw2 = !digitalRead(switch2Pin);
-  int sw3 = !digitalRead(switch3Pin);
-  int sw4 = !digitalRead(switch4Pin);
+  for (int i = 0; i < 4; i++) {
+    bool state = digitalRead(pins[i]);
 
-  digitalWrite(led1Pin, sw1);
-  digitalWrite(led2Pin, sw2);
-  digitalWrite(led3Pin, sw3);
-  digitalWrite(led4Pin, sw4);
+    if (!state && !pressed[i]) {   // button pressed
+      pressed[i] = true;
+      handlePress(i);
+    }
 
-  Serial.print(digitalRead(sw1));
-  Serial.print(":");
-  Serial.print(digitalRead(sw2));
-  Serial.print(":");
-  Serial.print(digitalRead(sw3));
-  Serial.print(":");
-  Serial.println(digitalRead(sw4));
+    if (state) pressed[i] = false; // button released
+  }
 
   myMQTT.loop();
 }
 
-
-
-
-
-// void setup() {
-//   pinMode(led1Pin, OUTPUT);
-//   pinMode(led2Pin, OUTPUT);
-//   pinMode(led3Pin, OUTPUT);
-//   pinMode(led4Pin, OUTPUT);
-  
-//   pinMode(switch1Pin, INPUT_PULLUP);
-//   pinMode(switch2Pin, INPUT_PULLUP);
-//   pinMode(switch3Pin, INPUT_PULLUP);
-//   pinMode(switch4Pin, INPUT_PULLUP);
-
-//   Serial.begin(115200);
-// }
-
-// void loop() {
-//   Serial.print(digitalRead(switch1Pin));
-//   Serial.print(":");
-//   Serial.print(digitalRead(switch2Pin));
-//   Serial.print(":");
-//   Serial.print(digitalRead(switch3Pin));
-//   Serial.print(":");
-//   Serial.println(digitalRead(switch4Pin));
-
-//   int sw1 = !digitalRead(switch1Pin);
-//   int sw2 = !digitalRead(switch2Pin);
-//   int sw3 = !digitalRead(switch3Pin);
-//   int sw4 = !digitalRead(switch4Pin);
-
-//   digitalWrite(led1Pin, sw1);
-//   digitalWrite(led2Pin, sw2);
-//   digitalWrite(led3Pin, sw3);
-//   digitalWrite(led4Pin, sw4);
-
-//   int vrValue = analogRead(vrPIN);  // 0-4095
-//   int percent = map(vrValue, 0, 4095, 0, 100); // optional: 0-100%
-  
-//   Serial.print("VR raw: ");
-//   Serial.print(vrValue);
-//   Serial.print("  |  VR %: ");
-//   Serial.println(percent);
-
-//   int ldrRaw = analogRead(ldrPin);
-//   int ldrPercent = map(ldrRaw, 0, 4095, 100, 0);
-  
-//   Serial.print("light raw: ");
-//   Serial.print(ldrRaw);
-//   Serial.print("  |  light %: ");
-//   Serial.println(ldrPercent);
-
-//   delay(500);
-
-// }
-
+void handlePress(int index) {
+  switch(index) {
+    case 0:  // button 1
+      myMQTT.publishMessage("main/ledToggle", "led1State");
+      break;
+    case 1:  // button 2
+      myMQTT.publishMessage("main/ledToggle", "led2State");
+      break;
+    case 2:  // button 3
+      myMQTT.publishMessage("main/ledToggle", "led3State");
+      break;
+    case 3:  // button 4
+      myMQTT.publishMessage("main/ledToggle", "led4State");
+      break;
+  }
+}
 
