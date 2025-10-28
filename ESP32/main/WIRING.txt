@@ -1,5 +1,5 @@
-vr = 15
-ldr = 2
+vr = 34
+ldr = 35
 dht11 = 4
 7seg = 16
 

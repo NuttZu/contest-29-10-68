@@ -1,8 +1,8 @@
 #include <connectMqttBroker.h>
 #include <TempDevice.h>
 
-#define VR_PIN 15
-#define ldrPin 2
+#define vrPIN 34
+#define ldrPin 35
 #define dhtPin 4
 #define segPin 16
 
@@ -41,18 +41,31 @@ void setup() {
   myMQTT.begin();
 }
 
+static unsigned long VrLast = 0;
+static unsigned long lightLast = 0;
+
 void loop() {
 
-  static unsigned long VrLast = 0;
-  // int vrMap = map();
-  if (millis() - VrLast > 500) {
-    int vrValue = analogRead(VR_PIN);  // 0-4095
+  if (millis() - VrLast > 100) {
+    VrLast = millis();
+    int vrValue = analogRead(vrPIN);  // 0-4095
     int percent = map(vrValue, 0, 4095, 0, 100); // optional: 0-100%
     
     Serial.print("VR raw: ");
-    Serial.print(vrValue);
+    Serial.print("vrValue");
     Serial.print("  |  VR %: ");
-    Serial.println(percent);
+    Serial.println("percent");
+  }
+
+  if (millis() - lightLast > 100) {
+    lightLast = millis();
+    int ldrRaw = analogRead(ldrPin);
+    int ldrPercent = map(ldrRaw, 0, 4095, 0, 100);
+    
+    Serial.print("light raw: ");
+    Serial.print(ldrPercent);
+    Serial.print("  |  light %: ");
+    Serial.println("percent");
   }
 
   myMQTT.loop();
