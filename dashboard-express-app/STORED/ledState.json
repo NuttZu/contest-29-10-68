@@ -1,6 +1,6 @@
 {
   "led1State": false,
   "led2State": false,
-  "led3State": false,
+  "led3State": true,
   "led4State": false
 }

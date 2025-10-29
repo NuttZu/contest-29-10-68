@@ -2,6 +2,9 @@
 #include <ArduinoJson.h>
 #include <connectMqttBroker.h>
 #include <TempDevice.h>
+#include "MyOLED.h"
+
+MyOLED oled;
 
 #define vrPIN 36
 #define ldrPin 39
@@ -15,7 +18,7 @@
 
 #define switch1Pin 27
 #define switch2Pin 14
-#define switch3Pin 12
+#define switch3Pin 34
 #define switch4Pin 13
 
 
@@ -35,13 +38,17 @@ void setup() {
   pinMode(switch3Pin, INPUT_PULLUP);
   pinMode(switch4Pin, INPUT_PULLUP);
 
+  oled.begin();
+  oled.printText("boot....", 0, 0, 2);
+
+
   Serial.begin(115200);
   myMQTT.begin();
   dhtDevice.begin();
 
   // Handle messages from broker
   myMQTT.setOnMessageCallback([](const char* topic, const char* message) {
-    Serial.println("MQTT > %s\n", topic, message);
+    Serial.printf("MQTT > %s\n", topic, message);
     int state = (strcmp(message, "true") == 0) ? HIGH : LOW;
     
     if (strcmp(topic, "main/setLed1") == 0) {
@@ -79,6 +86,8 @@ void loop() {
     int vrValue = analogRead(vrPIN);  // 0-4095
     int percent = map(vrValue, 0, 4095, 0, 100); // optional: 0-100%
 
+    oled.printText(("VR Sensor :            "), 0, 20, .5);
+    oled.printText(("VR Sensor : " + String(percent)), 0, 20, .5);
     myMQTT.publishMessage("main/vr", percent);
   }
 
@@ -87,19 +96,34 @@ void loop() {
     int ldrRaw = analogRead(ldrPin);
     int ldrPercent = map(ldrRaw, 0, 4095, 100, 0);
 
+    String LightText = ("LDR Sensor : " + String(ldrPercent));
+
+    oled.printText("LDR Sensor :            ", 0, 30, .5);
+    oled.printText(LightText, 0, 30, .5);
     myMQTT.publishMessage("main/light", ldrPercent);
   }
 
   if (millis() - tempLast > 1000) {
     tempLast = millis();
 
+    int temp = dhtDevice.readTemperature();
+    int humid = dhtDevice.readHumidity();
+
     JsonDocument data;
-    data["temp"] = dhtDevice.readTemperature();
-    data["humid"] = dhtDevice.readHumidity();
+    data["temp"] = temp;
+    data["humid"] = humid;
 
     char buffer[256];
     serializeJson(data, buffer);
 
+    String TempText = ("Tempereture : " + String(temp) + " °C / " + String((temp * 1.8) + 32));
+    String HumidText = ("Humidity : " + String(humid) + " %");
+
+    oled.printText("Tempereture :           ", 0, 0, .5);
+    oled.printText("Humidity :              ", 0, 10, .5);
+
+    oled.printText(TempText, 0, 0, .5);
+    oled.printText(HumidText, 0, 10, .5);
     myMQTT.publishMessage("main/temp", buffer);
   }
 
