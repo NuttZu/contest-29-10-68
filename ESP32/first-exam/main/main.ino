@@ -57,57 +57,68 @@ void setup() {
   oled.clearDisplay();
 }
 
+unsigned long led4Last = 0;   // global variable for LED4 timing
+bool led4State = true;        // current state of LED4
+
 void loop() {
-  unsigned long now = millis();
+    unsigned long now = millis();
 
-  // --- Read sensors ---
-  int vrValue = analogRead(vrPIN);
-  int vrPercent = map(vrValue, 0, 4095, 99, 2);
+    // --- Read sensors ---
+    int vrValue = analogRead(vrPIN);
+    int vrPercent = map(vrValue, 0, 4095, 99, 2);
 
-  int ldrValue = analogRead(ldrPin);
-  int ldrPercent = map(ldrValue, 0, 4095, 100, 0);
+    int ldrValue = analogRead(ldrPin);
+    int ldrPercent = map(ldrValue, 0, 4095, 100, 0);
 
-  int temp = dhtDevice.readTemperature();
-  int humid = dhtDevice.readHumidity();
+    float temp = dhtDevice.readTemperature();
+    float humid = dhtDevice.readHumidity();
 
-  // --- Control LED1 based on LDR ---
-  if (ldrPercent < 30) {
-    digitalWrite(led1Pin, 1);
-  } else if (ldrPercent > 70) {
-    digitalWrite(led1Pin, 0);
-  }
+    // --- LED1 logic ---
+    if (ldrPercent < 30) digitalWrite(led1Pin, HIGH);
+    else if (ldrPercent > 70) digitalWrite(led1Pin, LOW);
 
-  // --- Button states ---
-  bool sw1 = !digitalRead(switch1Pin);
-  bool sw2 = !digitalRead(switch2Pin);
-
-  // --- LED2 & LED3 logic ---
-  if (sw1 && sw2) {
-    // Both pressed → blink
-    if (now - lastBlink > 150) {
-      lastBlink = now;
-      blinkState = !blinkState;
-      digitalWrite(led2Pin, blinkState ? HIGH : LOW);
-      digitalWrite(led3Pin, blinkState ? HIGH : LOW);
+    // --- LED2 & LED3 logic ---
+    bool sw1 = !digitalRead(switch1Pin);
+    bool sw2 = !digitalRead(switch2Pin);
+    if (sw1 && sw2) {
+        if (now - lastBlink > 150) {
+            lastBlink = now;
+            blinkState = !blinkState;
+            digitalWrite(led2Pin, blinkState ? HIGH : LOW);
+            digitalWrite(led3Pin, blinkState ? HIGH : LOW);
+        }
+    } else {
+        digitalWrite(led2Pin, sw1 ? HIGH : LOW);
+        digitalWrite(led3Pin, sw2 ? HIGH : LOW);
     }
-  } else {
-    // Separate buttons
-    digitalWrite(led2Pin, sw1 ? HIGH : LOW);
-    digitalWrite(led3Pin, sw2 ? HIGH : LOW);
-  }
 
-  // --- Update OLED every 100ms ---
-  if (now - lastUpdate >= 100) {
-    lastUpdate = now;
+    // --- LED4 logic ---
+    if (temp > 24.0) {
+        // blink every 200ms
+        if (now - led4Last > 200) {
+            led4Last = now;
+            led4State = !led4State;
+            digitalWrite(led4Pin, led4State ? HIGH : LOW);
+        }
+    } else {
+        // always on
+        led4State = true;
+        digitalWrite(led4Pin, HIGH);
+    }
 
-    oled.clearDisplay();
-    oledprintText("Temperature: " + String(temp, 2) + " C", 0, 0, 2);
-    oledprintText("Humidity   : " + String(humid) + " %", 0, 20, 2);
-    oledprintText("Light Lvl : " + String(ldrPercent) + " %", 0, 40, 2);
-    oledprintText("VR Sensor : " + String(vrPercent) + " %", 0, 60, 2);
-    oled.display();
-  }
+    // --- Update OLED every 100ms ---
+    if (now - lastUpdate >= 100) {
+        lastUpdate = now;
+
+        oled.clearDisplay();
+        oledprintText("Temperature: " + String(temp, 2) + " C", 0, 0, 1);
+        oledprintText("Humidity   : " + String(humid, 2) + " %", 0, 15, 1);
+        oledprintText("Light Lvl : " + String(ldrPercent) + " %", 0, 30, 1);
+        oledprintText("VR Sensor : " + String(vrPercent) + " %", 0, 45, 1);
+        oled.display(); 
+    }
 }
+
 
 void oledprintText(const String text, int x, int y, int size) {
   oled.setTextSize(size);
