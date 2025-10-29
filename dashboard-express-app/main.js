@@ -19,7 +19,7 @@ const {
 
 } = require("./modules/dataManagement");
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3000;
 
 // Basic middleware
 app.use(express.json());
