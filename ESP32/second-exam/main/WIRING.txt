@@ -1,7 +1,14 @@
-vr = 36
-ldr = 39
-dht11 = 4
-7seg = 16
+#define vrPIN 36
+#define ldrPin 39
+#define dhtPin 4
+#define segPin 16
 
-led = 32, 33, 25, 26
-switch = 27,14, 12, 13
+#define led1Pin 32
+#define led2Pin 33
+#define led3Pin 17
+#define led4Pin 26
+
+#define switch1Pin 27
+#define switch2Pin 14
+#define switch3Pin 34
+#define switch4Pin 13
