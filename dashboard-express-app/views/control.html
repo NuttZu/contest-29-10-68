@@ -24,10 +24,10 @@
                         <div class="ledState" id="led4State"></div>
                     </div>
                     <div style="display: flex; flex-direction: row; margin-top: 0; justify-content: space-around;">
-                        <p style="font-size: 2vw;">Led 1</p>
-                        <p style="font-size: 2vw;">Led 2</p>
-                        <p style="font-size: 2vw;">Led 3</p>
-                        <p style="font-size: 2vw;">Led 4</p>
+                        <p style="font-size: 2vw;">Led 1 : </p>
+                        <p style="font-size: 2vw;">Led 2 : </p>
+                        <p style="font-size: 2vw;">Led 3 : </p>
+                        <p style="font-size: 2vw;">Led 4 : </p>
                     </div>
                 </div>
             </div>
@@ -56,44 +56,27 @@
 </body>
 <script>
     const socket = io(); // ✅ Works now
-    socket.on("led1State", (data) => {
-        if (data) {
-            document.getElementById("led1State").style.backgroundColor = "#5bfa25";
-        }
-        else if (!data) {
-            document.getElementById("led1State").style.backgroundColor = "#474747";
-        }
-    });
 
-    socket.on("led2State", (data) => {
+    function updateLed(ledId, data) {
+        const circle = document.getElementById(ledId);
+        const text = document.getElementById(ledId.replace('State','Text'));
         if (data) {
-            document.getElementById("led2State").style.backgroundColor = "#5bfa25";
+            circle.style.backgroundColor = "#5bfa25";
+            text.textContent = `${ledId.replace('State','LED ')}: ON`;
+        } else {
+            circle.style.backgroundColor = "#474747";
+            text.textContent = `${ledId.replace('State','LED ')}: OFF`;
         }
-        if (!data) {
-            document.getElementById("led2State").style.backgroundColor = "#474747";
-        }
-    });
+    }
 
-    socket.on("led3State", (data) => {
-        if (data) {
-            document.getElementById("led3State").style.backgroundColor = "#5bfa25";
-        }
-        if (!data) {
-            document.getElementById("led3State").style.backgroundColor = "#474747";
-        }
-    });
-
-    socket.on("led4State", (data) => {
-        if (data) {
-            document.getElementById("led4State").style.backgroundColor = "#5bfa25";
-        }
-        if (!data) {
-            document.getElementById("led4State").style.backgroundColor = "#474747";
-        }
-    });
+    socket.on("led1State", data => updateLed("led1State", data));
+    socket.on("led2State", data => updateLed("led2State", data));
+    socket.on("led3State", data => updateLed("led3State", data));
+    socket.on("led4State", data => updateLed("led4State", data));
 
     function toggleLed(led) {
         socket.emit("toggleLed", { led });
     }
+
 </script>
 </html>

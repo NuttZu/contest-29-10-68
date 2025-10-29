@@ -80,14 +80,13 @@ static unsigned long tempLast = 0;
 bool pressed[4] = {false, false, false, false};
 
 void loop() {
+  oled.printText("Program Running.", 0, 0, 1);
 
   if (millis() - VrLast > 500) {
     VrLast = millis();
     int vrValue = analogRead(vrPIN);  // 0-4095
     int percent = map(vrValue, 0, 4095, 0, 100); // optional: 0-100%
 
-    oled.printText(("VR Sensor :            "), 0, 20, .5);
-    oled.printText(("VR Sensor : " + String(percent)), 0, 20, .5);
     myMQTT.publishMessage("main/vr", percent);
   }
 
@@ -98,8 +97,6 @@ void loop() {
 
     String LightText = ("LDR Sensor : " + String(ldrPercent));
 
-    oled.printText("LDR Sensor :            ", 0, 30, .5);
-    oled.printText(LightText, 0, 30, .5);
     myMQTT.publishMessage("main/light", ldrPercent);
   }
 
@@ -119,11 +116,6 @@ void loop() {
     String TempText = ("Tempereture : " + String(temp) + " °C / " + String((temp * 1.8) + 32));
     String HumidText = ("Humidity : " + String(humid) + " %");
 
-    oled.printText("Tempereture :           ", 0, 0, .5);
-    oled.printText("Humidity :              ", 0, 10, .5);
-
-    oled.printText(TempText, 0, 0, .5);
-    oled.printText(HumidText, 0, 10, .5);
     myMQTT.publishMessage("main/temp", buffer);
   }
 
